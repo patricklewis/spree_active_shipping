@@ -1,6 +1,8 @@
 Active Shipping
 ===============
+Add 'FedEx Freight Economy' and 'FedEx Freight Priority'
 
+not tested!!
 [![Build
 Status](https://secure.travis-ci.org/spree-contrib/spree_active_shipping.png)](http://travis-ci.org/spree-contrib/spree_active_shipping)
 
@@ -14,13 +16,13 @@ Installation
   #### Spree >= 3.1
 
   ```ruby
-  gem 'spree_active_shipping', github: 'spree-contrib/spree_active_shipping'
+  gem 'spree_active_shipping', github: 'gofmanaa/spree_active_shipping'
   ```
 
   #### Spree 3.0 and Spree 2.x
 
   ```ruby
-  gem 'spree_active_shipping', github: 'spree-contrib/spree_active_shipping', branch: 'X-X-stable'
+  gem 'spree_active_shipping', github: 'gofmanaa/spree_active_shipping', branch: 'X-X-stable'
   ```
 
   The `branch` option is important: it must match the version of Spree you're using.
