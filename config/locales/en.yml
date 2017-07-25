@@ -24,6 +24,8 @@ en:
     two_day_freight: "FedEx 2 Day Freight"
     two_day_freight_saturday_delivery: "FedEx 2 Day Freight Saturday Delivery"
     two_day_saturday_delivery: "FedEx 2 Day Saturday Delivery"
+    freight_priority: "FedEx Freight Priority"
+    freight_economy: "FedEx Freight Economy"
   ups:
     ground: "UPS Ground"
     next_day_air: "UPS Next Day Air"
