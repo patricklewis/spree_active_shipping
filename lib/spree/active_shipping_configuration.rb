@@ -8,6 +8,7 @@ class Spree::ActiveShippingConfiguration < Spree::Preferences::Configuration
   preference :fedex_login, :string, default: "meter_no"
   preference :fedex_password, :string, default: "special_sha1_looking_thing_sent_via_email"
   preference :fedex_account, :string, default: "account_no"
+  preference :fedex_freight_account, :string, default: nil
   preference :fedex_key, :string, default: "authorization_key"
 
   preference :usps_login, :string, default: "aunt_judy"

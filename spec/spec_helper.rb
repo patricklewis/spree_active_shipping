@@ -23,7 +23,9 @@ require 'spree/testing_support/factories'
 require 'spree/testing_support/controller_requests'
 require 'spree/testing_support/authorization_helpers'
 require 'spree/testing_support/url_helpers'
+require 'rails-controller-testing'
 
+Rails::Controller::Testing.install
 Dir[File.join(File.dirname(__FILE__), "factories/*.rb")].each {|f| require f }
 
 RSpec.configure do |config|
@@ -55,4 +57,6 @@ RSpec.configure do |config|
   config.infer_spec_type_from_file_location!
 
 
+
 end
+

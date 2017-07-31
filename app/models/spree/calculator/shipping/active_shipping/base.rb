@@ -32,8 +32,9 @@ module Spree
 
           origin = build_location(stock_location)
           destination = build_location(order.ship_address)
+          options = build_options(origin)
 
-          rates_result = retrieve_rates_from_cache(package, origin, destination)
+          rates_result = retrieve_rates_from_cache(package, origin, destination, options)
 
           return nil if rates_result.kind_of?(Spree::ShippingError)
           return nil if rates_result.empty?
@@ -94,9 +95,9 @@ module Spree
           package.weight <= max_weight
         end
 
-        def retrieve_rates(origin, destination, shipment_packages)
+        def retrieve_rates(origin, destination, shipment_packages, options = {})
           begin
-            response = carrier.find_rates(origin, destination, shipment_packages)
+            response = carrier.find_rates(origin, destination, shipment_packages, options)
             # turn this beastly array into a nice little hash
             rates = response.rates.collect do |rate|
               service_name = rate.service_name.encode("UTF-8")
@@ -128,10 +129,10 @@ module Spree
         end
 
 
-        def retrieve_timings(origin, destination, packages)
+        def retrieve_timings(origin, destination, packages, options)
           begin
             if carrier.respond_to?(:find_time_in_transit)
-              response = carrier.find_time_in_transit(origin, destination, packages)
+              response = carrier.find_time_in_transit(origin, destination, packages, options)
               return response
             end
           rescue ::ActiveShipping::ResponseError => re
@@ -266,13 +267,29 @@ module Spree
                        zip: address.zipcode)
         end
 
-        def retrieve_rates_from_cache package, origin, destination
+        def build_options(address)
+          options = {}
+          if self.carrier.kind_of?(::ActiveShipping::FedEx) && Spree::ActiveShipping::Config[:fedex_freight_account].present?
+            options = {
+              freight: {
+                  payment_type: 'SENDER',
+                  account: Spree::ActiveShipping::Config[:fedex_freight_account],
+                  billing_location:  address,
+                  freight_class: 'CLASS_050',
+                  packaging: 'PALLET'
+              }
+            }
+          end
+          options
+        end
+
+        def retrieve_rates_from_cache package, origin, destination,  options = {}
           Rails.cache.fetch(cache_key(package)) do
             shipment_packages = packages(package)
             if shipment_packages.empty?
               {}
             else
-              retrieve_rates(origin, destination, shipment_packages)
+              retrieve_rates(origin, destination, shipment_packages, options)
             end
           end
         end
