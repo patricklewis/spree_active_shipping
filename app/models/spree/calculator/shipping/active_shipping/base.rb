@@ -44,7 +44,7 @@ module Spree
           rate = rate.to_f + (Spree::ActiveShipping::Config[:handling_fee].to_f || 0.0)
 
           # divide by 100 since active_shipping rates are expressed as cents
-          return rate/100.0
+          rate / 100.0
         end
 
         def timing(line_items)
@@ -64,17 +64,19 @@ module Spree
           end
           raise timings_result if timings_result.kind_of?(Spree::ShippingError)
           return nil if timings_result.nil? || !timings_result.is_a?(Hash) || timings_result.empty?
-          return timings_result[self.description]
+          timings_result[self.description]
 
         end
 
         protected
+
         # weight limit in ounces or zero (if there is no limit)
         def max_weight_for_country(country)
           0
         end
 
         private
+
         # check for known limitations inside a package
         # that will limit you from shipping using a service
         def is_package_shippable? package
@@ -166,7 +168,7 @@ module Spree
             if max_weight <= 0 || item_weight < max_weight
               item_weight
             else
-              raise Spree::ShippingError.new("#{I18n.t(:shipping_error)}: The maximum per package weight for the selected service from the selected country is #{max_weight} ounces.")  
+              raise Spree::ShippingError.new("#{I18n.t(:shipping_error)}: The maximum per package weight for the selected service from the selected country is #{max_weight} ounces.")
             end
           end
           weights.flatten.compact.sort
@@ -239,9 +241,9 @@ module Spree
           order = package.order
           max_weight = max_weight_for_country(order.ship_address.country)
           max_weight_per_package = Spree::ActiveShipping::Config[:max_weight_per_package] * Spree::ActiveShipping::Config[:unit_multiplier]
-          if max_weight == 0 and max_weight_per_package > 0
+          if max_weight.zero? && max_weight_per_package > 0
             max_weight = max_weight_per_package
-          elsif max_weight > 0 and max_weight_per_package < max_weight and max_weight_per_package > 0
+          elsif max_weight > 0 && max_weight_per_package < max_weight && max_weight_per_package > 0
             max_weight = max_weight_per_package
           end
 
@@ -256,38 +258,44 @@ module Spree
           @cache_key = "#{stock_location}#{carrier.name}-#{order.number}-#{ship_address.country.iso}-#{fetch_best_state_from_address(ship_address)}-#{ship_address.city}-#{ship_address.zipcode}-#{contents_hash}-#{I18n.locale}".gsub(" ","")
         end
 
-        def fetch_best_state_from_address address
+        def fetch_best_state_from_address(address)
           address.state ? address.state.abbr : address.state_name
         end
 
         def build_location address
           ::ActiveShipping::Location.new(country: address.country.iso,
-                       state: fetch_best_state_from_address(address),
-                       city: address.city,
-                       address1: address.address1,
-                       address2: address.address2,
-                       zip: address.zipcode)
+                                         state: fetch_best_state_from_address(address),
+                                         city: address.city,
+                                         address1: address.address1,
+                                         address2: address.address2,
+                                         zip: address.zipcode)
         end
 
         def build_options(address)
           options = {}
-          if self.carrier.kind_of?(::ActiveShipping::FedEx) && Spree::ActiveShipping::Config[:fedex_freight_account].present?
-
+          if fedex_freight?
             options = {
               freight: {
-                  payment_type: 'SENDER',
-                  role: 'SHIPPER',
-                  account: Spree::ActiveShipping::Config[:fedex_freight_account],
-                  billing_location:  address,
-                  freight_class: 'CLASS_050',
-                  packaging: 'PALLET'
+                payment_type: 'SENDER',
+                role: 'SHIPPER',
+                account: Spree::ActiveShipping::Config[:fedex_freight_account],
+                billing_location:  address,
+                freight_class: 'CLASS_050',
+                packaging: 'PALLET'
               }
             }
           end
           options
         end
 
-        def retrieve_rates_from_cache package, origin, destination,  options = {}
+        def fedex_freight?
+          carrier.is_a?(::ActiveShipping::FedEx) &&
+            (is_a?(Spree::Calculator::Shipping::Fedex::FreightEconomy) ||
+            is_a?(Spree::Calculator::Shipping::Fedex::FreightEconomy)) &&
+            Spree::ActiveShipping::Config[:fedex_freight_account].present?
+        end
+
+        def retrieve_rates_from_cache(package, origin, destination, options = {})
           Rails.cache.fetch(cache_key(package)) do
             shipment_packages = packages(package)
             if shipment_packages.empty?
