@@ -264,6 +264,8 @@ module Spree
           ::ActiveShipping::Location.new(country: address.country.iso,
                        state: fetch_best_state_from_address(address),
                        city: address.city,
+                       address1: address.address1,
+                       address2: address.address2,
                        zip: address.zipcode)
         end
 
