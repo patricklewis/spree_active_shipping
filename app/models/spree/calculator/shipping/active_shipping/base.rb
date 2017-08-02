@@ -129,7 +129,7 @@ module Spree
         end
 
 
-        def retrieve_timings(origin, destination, packages, options)
+        def retrieve_timings(origin, destination, packages, options = {})
           begin
             if carrier.respond_to?(:find_time_in_transit)
               response = carrier.find_time_in_transit(origin, destination, packages, options)
@@ -270,9 +270,11 @@ module Spree
         def build_options(address)
           options = {}
           if self.carrier.kind_of?(::ActiveShipping::FedEx) && Spree::ActiveShipping::Config[:fedex_freight_account].present?
+
             options = {
               freight: {
                   payment_type: 'SENDER',
+                  role: 'SHIPPER',
                   account: Spree::ActiveShipping::Config[:fedex_freight_account],
                   billing_location:  address,
                   freight_class: 'CLASS_050',

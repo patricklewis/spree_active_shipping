@@ -194,7 +194,7 @@ module Spree
 
 
           # Spree Methods -- Not Overridden
-          def find_time_in_transit(origin, destination, packages, options={})
+          def find_time_in_transit(origin, destination, packages, options = {})
             origin, destination = upsified_location(origin), upsified_location(destination)
             options = @options.merge(options)
             packages = Array(packages)
