@@ -290,7 +290,7 @@ module Spree
 
         def fedex_freight?
           carrier.is_a?(::ActiveShipping::FedEx) &&
-            (is_a?(Spree::Calculator::Shipping::Fedex::FreightEconomy) ||
+            (is_a?(Spree::Calculator::Shipping::Fedex::FreightPriority) ||
             is_a?(Spree::Calculator::Shipping::Fedex::FreightEconomy)) &&
             Spree::ActiveShipping::Config[:fedex_freight_account].present?
         end
