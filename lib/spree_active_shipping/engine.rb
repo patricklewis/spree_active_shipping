@@ -22,6 +22,9 @@ module SpreeActiveShippingExtension
 
       # Fix Canada Post "Ready to ship" package
       ActiveShipping::CanadaPost.send(:include, Spree::ActiveShipping::CanadaPostOverride)
+      # fix FedEx build location
+      ActiveShipping::FedEx.send(:include, Spree::ActiveShipping::FedexOverride)
+
     end
 
     config.autoload_paths += %W(#{config.root}/lib)
