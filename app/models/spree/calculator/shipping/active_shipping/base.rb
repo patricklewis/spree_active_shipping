@@ -35,7 +35,7 @@ module Spree
           options = build_options(origin)
 
           rates_result = retrieve_rates_from_cache(package, origin, destination, options)
-
+          Rails.logger.info "ActiveShipping Log: #{rates_result.inspect}"
           return nil if rates_result.kind_of?(Spree::ShippingError)
           return nil if rates_result.empty?
           rate = rates_result[self.class.description]
