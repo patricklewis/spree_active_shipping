@@ -250,12 +250,13 @@ module Spree
           max_weight
         end
 
-        def cache_key(package)
+        def cache_key(package, options = {})
           stock_location = package.stock_location.nil? ? "" : "#{package.stock_location.id}-"
           order = package.order
           ship_address = package.order.ship_address
           contents_hash = Digest::MD5.hexdigest(package.contents.map {|content_item| content_item.variant.id.to_s + "_" + content_item.quantity.to_s }.join("|"))
-          @cache_key = "#{stock_location}#{carrier.name}-#{order.number}-#{ship_address.country.iso}-#{fetch_best_state_from_address(ship_address)}-#{ship_address.city}-#{ship_address.zipcode}-#{contents_hash}-#{I18n.locale}".gsub(" ","")
+          option_key = options.map { |k, v| "#{k}=#{v}" }.join(':')
+          @cache_key = "#{stock_location}#{carrier.name}-#{order.number}-#{ship_address.country.iso}-#{fetch_best_state_from_address(ship_address)}-#{ship_address.city}-#{ship_address.zipcode}-#{contents_hash}-#{option_key}-#{I18n.locale}".gsub(" ","")
         end
 
         def fetch_best_state_from_address(address)
@@ -296,7 +297,7 @@ module Spree
         end
 
         def retrieve_rates_from_cache(package, origin, destination, options = {})
-          Rails.cache.fetch(cache_key(package)) do
+          Rails.cache.fetch(cache_key(package, options )) do
             shipment_packages = packages(package)
             if shipment_packages.empty?
               {}
