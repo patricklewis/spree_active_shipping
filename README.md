@@ -2,7 +2,8 @@ Active Shipping
 ===============
 Add 'FedEx Freight Economy' and 'FedEx Freight Priority'
 
-not tested!!
+
+Work fine
 [![Build
 Status](https://secure.travis-ci.org/spree-contrib/spree_active_shipping.png)](http://travis-ci.org/spree-contrib/spree_active_shipping)
 
