@@ -7,4 +7,11 @@ Spree::StockLocation.class_eval do
       errors.add(:state_name, "can't be blank")
     end
   end
+
+  def stock_fedex_credentials_present?
+    respond_to?(:fedex_account) &&
+    respond_to?(:fedex_password) &&
+    respond_to?(:fedex_key) &&
+    respond_to?(:fedex_login)
+  end
 end

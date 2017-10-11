@@ -10,6 +10,7 @@ class Spree::ActiveShippingConfiguration < Spree::Preferences::Configuration
   preference :fedex_account, :string, default: "account_no"
   preference :fedex_freight_account, :string, default: nil
   preference :fedex_key, :string, default: "authorization_key"
+  preference :fedex_multi_warehouse, :boolean, default: false
 
   preference :usps_login, :string, default: "aunt_judy"
   preference :usps_commercial_base, :boolean, default: false

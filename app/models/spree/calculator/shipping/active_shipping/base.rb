@@ -32,7 +32,7 @@ module Spree
 
           origin = build_location(stock_location)
           destination = build_location(order.ship_address)
-          options = build_options(origin)
+          options = build_options(stock_location)
 
           rates_result = retrieve_rates_from_cache(package, origin, destination, options)
           Rails.logger.info "ActiveShipping Log: #{rates_result.inspect}"
@@ -108,7 +108,7 @@ module Spree
             rate_hash = Hash[*rates.flatten]
             return rate_hash
           rescue ::ActiveShipping::Error => e
-
+            Rails.logger.info "ActiveShipping Error: #{ e.message }"
             if e.class == ::ActiveShipping::ResponseError && e.response.is_a?(::ActiveShipping::Response)
               params = e.response.params
               if params.has_key?("Response") && params["Response"].has_key?("Error") && params["Response"]["Error"].has_key?("ErrorDescription")
@@ -272,7 +272,7 @@ module Spree
                                          zip: address.zipcode)
         end
 
-        def build_options(address)
+        def build_options(stock)
           options = {}
           if fedex_freight?
             options = {
@@ -280,20 +280,38 @@ module Spree
                 payment_type: 'SENDER',
                 role: 'SHIPPER',
                 account: Spree::ActiveShipping::Config[:fedex_freight_account],
-                billing_location:  address,
+                billing_location:  build_location(stock),
                 freight_class: 'CLASS_050',
                 packaging: 'PALLET'
               }
             }
           end
+          if is_fedex_multi_warehouse? && stock.fedex_key.present? && stock.fedex_password.present? &&
+              stock.fedex_account.present? && stock.fedex_login.present?
+            options.merge!({
+                               key: stock.fedex_key,
+                               password: stock.fedex_password,
+                               account: stock.fedex_account,
+                               login: stock.fedex_login,
+                           })
+            if fedex_freight? && stock.fedex_freight_account
+              options[:freight][:account] = stock.fedex_freight_account
+            end
+          end
           options
         end
+
+
 
         def fedex_freight?
           carrier.is_a?(::ActiveShipping::FedEx) &&
             (is_a?(Spree::Calculator::Shipping::Fedex::FreightPriority) ||
             is_a?(Spree::Calculator::Shipping::Fedex::FreightEconomy)) &&
             Spree::ActiveShipping::Config[:fedex_freight_account].present?
+        end
+
+        def is_fedex_multi_warehouse?
+          Spree::ActiveShipping::Config[:fedex_multi_warehouse]
         end
 
         def retrieve_rates_from_cache(package, origin, destination, options = {})

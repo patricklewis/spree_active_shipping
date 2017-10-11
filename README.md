@@ -1,8 +1,10 @@
 Active Shipping
 ===============
 Add 'FedEx Freight Economy' and 'FedEx Freight Priority'
+add Spree::ActiveShipping::Config.set(fedex_multi_warehouse: true) (default: false)
 
 not tested!!
+
 [![Build
 Status](https://secure.travis-ci.org/spree-contrib/spree_active_shipping.png)](http://travis-ci.org/spree-contrib/spree_active_shipping)
 
